@@ -103,6 +103,9 @@ void AThomasCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AThomasCharacter::Look);
+	
+		// CastSpell
+		EnhancedInputComponent->BindAction(CastSpellAction, ETriggerEvent::Triggered, this, &AThomasCharacter::CastSpell);
 	}
 	else
 	{
@@ -143,5 +146,28 @@ void AThomasCharacter::Look(const FInputActionValue& Value)
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+	}
+}
+
+void AThomasCharacter::CastSpell()
+{
+	UE_LOG(LogTemp, Log, TEXT("CastSpell"));
+
+	UWorld* World = GetWorld();
+	check(World);
+
+	FVector Start = FollowCamera->GetComponentLocation();
+	FVector End = Start + FollowCamera->GetForwardVector() * 1000.f;
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	FHitResult HitResult;
+	bool bHit = World->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_WorldDynamic, QueryParams);
+	if (bHit)
+	{
+		World->SpawnActor<AActor>(SpellActor, HitResult.Location, FRotator{});
+
+		//HitResult.
 	}
 }

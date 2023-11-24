@@ -45,6 +45,10 @@ class AThomasCharacter : public ACharacter, public IDamageableInterface
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
+	/** Look Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* CastSpellAction;
+
 public:
 	AThomasCharacter();
 	
@@ -56,7 +60,8 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
-			
+	
+	void CastSpell();
 
 protected:
 	// APawn interface
@@ -73,6 +78,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	int32 Health;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> SpellActor;
 
 	void Damage(int32 Dmg) override;
 };
