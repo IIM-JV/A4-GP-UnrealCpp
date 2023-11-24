@@ -79,5 +79,5 @@ void ADamageTrigger::OnDealDamage()
 	IDamageableInterface* Damageable = Cast<IDamageableInterface>(ActorInZone);
 	check(Damageable);
 
-	Damageable->Damage(10);
+	Damageable->Damage(Damage);
 }
