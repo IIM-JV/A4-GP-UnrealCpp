@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Logging/StructuredLog.h"
+#include "Item.h"
 #include "SpellData.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -82,12 +83,21 @@ void AThomasCharacter::Damage(int32 Dmg)
 	}
 
 	Health -= Dmg;
-	UE_LOGFMT(LogTemplateCharacter, Log, "New health: {0}", Dmg);
+	UE_LOGFMT(LogTemplateCharacter, Log, "New health: {0}", Health);
 	if (Health <= 0)
 	{
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 		GetMesh()->SetSimulatePhysics(true);
 	}
+}
+
+void AThomasCharacter::Heal(int32 Heal)
+{
+	Health += Heal;
+	if (Health > 100)
+		Health = 100;
+
+	UE_LOGFMT(LogTemplateCharacter, Log, "New health: {0}", Health);
 }
 
 bool AThomasCharacter::ConsumeMana(int32 ManaCost)
@@ -99,6 +109,15 @@ bool AThomasCharacter::ConsumeMana(int32 ManaCost)
 	UE_LOGFMT(LogTemplateCharacter, Log, "New mana: {0}", Mana);
 
 	return true;
+}
+
+void AThomasCharacter::GainMana(int32 ManaGain)
+{
+	Mana += ManaGain;
+	if (Mana > 100)
+		Mana = 100;
+
+	UE_LOGFMT(LogTemplateCharacter, Log, "New mana: {0}", Mana);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -121,6 +140,8 @@ void AThomasCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	
 		// CastSpell
 		EnhancedInputComponent->BindAction(CastSpellAction, ETriggerEvent::Triggered, this, &AThomasCharacter::CastSpell);
+
+		EnhancedInputComponent->BindAction(UseItemAction, ETriggerEvent::Triggered, this, &AThomasCharacter::UseItem);
 	}
 	else
 	{
@@ -189,5 +210,31 @@ void AThomasCharacter::CastSpell()
 	if (bHit)
 	{
 		World->SpawnActor<AActor>(CurrentSpell->SpellActor, HitResult.Location, FRotator{});
+	}
+}
+
+void AThomasCharacter::UseItem()
+{
+	UE_LOG(LogTemp, Log, TEXT("UseItem"));
+
+	UWorld* World = GetWorld();
+	check(World);
+
+	FVector Start = FollowCamera->GetComponentLocation();
+	FVector End = Start + FollowCamera->GetForwardVector() * UseRange;
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	FHitResult HitResult;
+	bool bHit = World->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_PhysicsBody, QueryParams);
+	if (bHit)
+	{
+		AItem* Item = Cast<AItem>(HitResult.GetActor());
+		if (!Item)
+			return;
+
+		UE_LOGFMT(LogTemp, Log, "Found Item {0}", HitResult.GetActor()->GetName());
+		Item->Use(this);
 	}
 }

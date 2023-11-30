@@ -45,9 +45,13 @@ class AThomasCharacter : public ACharacter, public IDamageableInterface
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
-	/** Look Input Action */
+	/** Cast Spell Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* CastSpellAction;
+
+	/** Use Item Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* UseItemAction;
 
 public:
 	AThomasCharacter();
@@ -62,6 +66,8 @@ protected:
 	void Look(const FInputActionValue& Value);
 	
 	void CastSpell();
+	
+	void UseItem();
 
 protected:
 	// APawn interface
@@ -83,10 +89,15 @@ public:
 	int32 Mana;
 
 	UPROPERTY(EditAnywhere)
+	float UseRange = 500.f;
+
+	UPROPERTY(EditAnywhere)
 	TObjectPtr<class USpellData> CurrentSpell;
 
 	void Damage(int32 Dmg) override;
+	void Heal(int32 Heal);
 
 	bool ConsumeMana(int32 ManaCost);
+	void GainMana(int32 ManaGain);
 };
 
