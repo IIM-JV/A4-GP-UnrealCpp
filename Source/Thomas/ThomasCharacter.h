@@ -86,5 +86,7 @@ public:
 	TObjectPtr<class USpellData> CurrentSpell;
 
 	void Damage(int32 Dmg) override;
+
+	bool ConsumeMana(int32 ManaCost);
 };
 

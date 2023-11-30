@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Logging/StructuredLog.h"
 #include "SpellData.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -81,11 +82,23 @@ void AThomasCharacter::Damage(int32 Dmg)
 	}
 
 	Health -= Dmg;
+	UE_LOGFMT(LogTemplateCharacter, Log, "New health: {0}", Dmg);
 	if (Health <= 0)
 	{
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 		GetMesh()->SetSimulatePhysics(true);
 	}
+}
+
+bool AThomasCharacter::ConsumeMana(int32 ManaCost)
+{
+	if (Mana < ManaCost)
+		return false;
+
+	Mana -= ManaCost;
+	UE_LOGFMT(LogTemplateCharacter, Log, "New mana: {0}", Mana);
+
+	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -153,18 +166,14 @@ void AThomasCharacter::Look(const FInputActionValue& Value)
 
 void AThomasCharacter::CastSpell()
 {
-	UE_LOG(LogTemp, Log, TEXT("CastSpell"));
-
 	if (!CurrentSpell)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Spell is null!"));
+		UE_LOG(LogTemplateCharacter, Error, TEXT("Spell is null!"));
 		return;
 	}
 
-	if (Mana < CurrentSpell->ManaCost)
+	if (!ConsumeMana(CurrentSpell->ManaCost))
 		return;
-
-	Mana -= CurrentSpell->ManaCost;
 
 	UWorld* World = GetWorld();
 	check(World);
