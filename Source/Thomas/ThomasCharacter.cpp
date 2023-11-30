@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "SpellData.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -54,6 +55,7 @@ AThomasCharacter::AThomasCharacter()
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
 	Health = 100;
+	Mana = 100;
 }
 
 void AThomasCharacter::BeginPlay()
@@ -153,11 +155,22 @@ void AThomasCharacter::CastSpell()
 {
 	UE_LOG(LogTemp, Log, TEXT("CastSpell"));
 
+	if (!CurrentSpell)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Spell is null!"));
+		return;
+	}
+
+	if (Mana < CurrentSpell->ManaCost)
+		return;
+
+	Mana -= CurrentSpell->ManaCost;
+
 	UWorld* World = GetWorld();
 	check(World);
 
 	FVector Start = FollowCamera->GetComponentLocation();
-	FVector End = Start + FollowCamera->GetForwardVector() * 1000.f;
+	FVector End = Start + FollowCamera->GetForwardVector() * CurrentSpell->Range;
 
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
@@ -166,8 +179,6 @@ void AThomasCharacter::CastSpell()
 	bool bHit = World->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_WorldDynamic, QueryParams);
 	if (bHit)
 	{
-		World->SpawnActor<AActor>(SpellActor, HitResult.Location, FRotator{});
-
-		//HitResult.
+		World->SpawnActor<AActor>(CurrentSpell->SpellActor, HitResult.Location, FRotator{});
 	}
 }

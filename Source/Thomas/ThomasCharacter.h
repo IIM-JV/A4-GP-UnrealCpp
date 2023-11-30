@@ -80,7 +80,10 @@ public:
 	int32 Health;
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<AActor> SpellActor;
+	int32 Mana;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class USpellData> CurrentSpell;
 
 	void Damage(int32 Dmg) override;
 };
