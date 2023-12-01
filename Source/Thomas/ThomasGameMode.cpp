@@ -1,7 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "ThomasGameMode.h"
-#include "ThomasCharacter.h"
+#include "tHomasUD.h"
 #include "UObject/ConstructorHelpers.h"
 
 AThomasGameMode::AThomasGameMode()
@@ -12,4 +12,6 @@ AThomasGameMode::AThomasGameMode()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
+
+	HUDClass = AtHomasUD::StaticClass();
 }

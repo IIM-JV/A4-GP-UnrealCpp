@@ -32,4 +32,7 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	float Range;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UAnimMontage> Animation;
 };

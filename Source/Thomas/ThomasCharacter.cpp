@@ -84,6 +84,8 @@ void AThomasCharacter::Damage(int32 Dmg)
 
 	Health -= Dmg;
 	UE_LOGFMT(LogTemplateCharacter, Log, "New health: {0}", Health);
+	OnHealthUpdate.Broadcast(Health);
+
 	if (Health <= 0)
 	{
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
@@ -98,6 +100,7 @@ void AThomasCharacter::Heal(int32 Heal)
 		Health = 100;
 
 	UE_LOGFMT(LogTemplateCharacter, Log, "New health: {0}", Health);
+	OnHealthUpdate.Broadcast(Health);
 }
 
 bool AThomasCharacter::ConsumeMana(int32 ManaCost)
@@ -187,6 +190,11 @@ void AThomasCharacter::Look(const FInputActionValue& Value)
 
 void AThomasCharacter::CastSpell()
 {
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+	if (AnimInstance && AnimInstance->IsAnyMontagePlaying())
+		return;
+
 	if (!CurrentSpell)
 	{
 		UE_LOG(LogTemplateCharacter, Error, TEXT("Spell is null!"));
@@ -196,21 +204,8 @@ void AThomasCharacter::CastSpell()
 	if (!ConsumeMana(CurrentSpell->ManaCost))
 		return;
 
-	UWorld* World = GetWorld();
-	check(World);
-
-	FVector Start = FollowCamera->GetComponentLocation();
-	FVector End = Start + FollowCamera->GetForwardVector() * CurrentSpell->Range;
-
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(this);
-
-	FHitResult HitResult;
-	bool bHit = World->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_WorldDynamic, QueryParams);
-	if (bHit)
-	{
-		World->SpawnActor<AActor>(CurrentSpell->SpellActor, HitResult.Location, FRotator{});
-	}
+	if (AnimInstance && CurrentSpell->Animation)
+		AnimInstance->Montage_Play(CurrentSpell->Animation);
 }
 
 void AThomasCharacter::UseItem()
@@ -236,5 +231,24 @@ void AThomasCharacter::UseItem()
 
 		UE_LOGFMT(LogTemp, Log, "Found Item {0}", HitResult.GetActor()->GetName());
 		Item->Use(this);
+	}
+}
+
+void AThomasCharacter::DoCastSpell()
+{
+	UWorld* World = GetWorld();
+	check(World);
+
+	FVector Start = FollowCamera->GetComponentLocation();
+	FVector End = Start + FollowCamera->GetForwardVector() * CurrentSpell->Range;
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	FHitResult HitResult;
+	bool bHit = World->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_WorldDynamic, QueryParams);
+	if (bHit)
+	{
+		World->SpawnActor<AActor>(CurrentSpell->SpellActor, HitResult.Location, FRotator{});
 	}
 }

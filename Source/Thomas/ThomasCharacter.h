@@ -16,6 +16,8 @@ struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCharacterHealthUpdate, int32, Health);
+
 UCLASS(config=Game)
 class AThomasCharacter : public ACharacter, public IDamageableInterface
 {
@@ -69,6 +71,9 @@ protected:
 	
 	void UseItem();
 
+	UFUNCTION(BlueprintCallable)
+	void DoCastSpell();
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -99,5 +104,7 @@ public:
 
 	bool ConsumeMana(int32 ManaCost);
 	void GainMana(int32 ManaGain);
+
+	FOnCharacterHealthUpdate OnHealthUpdate;
 };
 
