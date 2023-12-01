@@ -2,6 +2,7 @@
 
 #include "ThomasGameMode.h"
 #include "ThomasCharacter.h"
+#include "ThomasHUD.h"
 #include "UObject/ConstructorHelpers.h"
 
 AThomasGameMode::AThomasGameMode()
@@ -12,4 +13,6 @@ AThomasGameMode::AThomasGameMode()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
+
+	HUDClass = AThomasHUD::StaticClass();
 }

@@ -84,6 +84,8 @@ void AThomasCharacter::Damage(int32 Dmg)
 
 	Health -= Dmg;
 	UE_LOGFMT(LogTemplateCharacter, Log, "New health: {0}", Health);
+	OnHealthChanged.Broadcast(Health);
+
 	if (Health <= 0)
 	{
 		GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
@@ -98,6 +100,7 @@ void AThomasCharacter::Heal(int32 Heal)
 		Health = 100;
 
 	UE_LOGFMT(LogTemplateCharacter, Log, "New health: {0}", Health);
+	OnHealthChanged.Broadcast(Health);
 }
 
 bool AThomasCharacter::ConsumeMana(int32 ManaCost)

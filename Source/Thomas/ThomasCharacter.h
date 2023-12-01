@@ -16,6 +16,8 @@ struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCharacterStatChanged, int32, StatValue);
+
 UCLASS(config=Game)
 class AThomasCharacter : public ACharacter, public IDamageableInterface
 {
@@ -99,5 +101,11 @@ public:
 
 	bool ConsumeMana(int32 ManaCost);
 	void GainMana(int32 ManaGain);
+
+	UPROPERTY(VisibleAnywhere)
+	FOnCharacterStatChanged OnHealthChanged;
+	
+	UPROPERTY(VisibleAnywhere)
+	FOnCharacterStatChanged OnManaChanged;
 };
 
